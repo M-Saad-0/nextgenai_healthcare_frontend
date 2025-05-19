@@ -1,0 +1,31 @@
+name: backend_services_repository
+description: This repository will be used to store and retrieve data and authenticating user
+publish_to: 'none'
+version: 0.01.0
+environment:
+  sdk: ^3.5.1
+dependencies:
+  flutter:
+    sdk: flutter
+  path: ^1.9.0
+  http: ^1.2.2
+  image_picker: ^1.1.2
+  google_sign_in: ^6.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  geolocator: ^13.0.2
+  flutter_image_compress: ^2.4.0
+  # crypto: ^3.0.6
+  # webview_flutter: ^4.4.2
+  # webview_flutter_android: ^3.12.1
+  # webview_flutter_wkwebview: ^3.9.4
+  # flutter_html: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: 
+  hive_generator: 
+flutter:  
+  uses-material-design: true
