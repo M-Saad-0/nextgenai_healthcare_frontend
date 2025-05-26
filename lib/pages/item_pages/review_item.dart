@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:next_gen_ai_healthcare/blocs/borrowing_process_bloc/borrowing_process_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/review_bloc/review_bloc.dart';
-import 'package:next_gen_ai_healthcare/pages/item_pages/item_order_page.dart';
 
 class ReviewItemPage extends StatefulWidget {
   final Map<String, dynamic> itemBorrowed;
@@ -134,7 +132,7 @@ class _ReviewItemPageState extends State<ReviewItemPage> {
                           context.read<ReviewBloc>().add(AddReviewEvent(
                               review: _reviewController.text,
                               itemBorrowed: widget.itemBorrowed,
-                              rating: selectedIndex.toDouble()));
+                              rating: selectedIndex.toDouble()+1));
                           // context
                           //     .read<BorrowingProcessBloc>()
                           //     .add(BorrowingProcessReviewdEvent(

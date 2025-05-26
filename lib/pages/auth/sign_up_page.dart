@@ -166,58 +166,58 @@ class _SignUpPageState extends State<SignUpPage> {
                         }),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "⚈  1 uppercase",
-                            style: TextStyle(
-                                color: containsUpperCase
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSurface),
-                          ),
-                          Text(
-                            "⚈  1 lowercase",
-                            style: TextStyle(
-                                color: containsLowerCase
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSurface),
-                          ),
-                          Text(
-                            "⚈  1 number",
-                            style: TextStyle(
-                                color: containsNumber
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSurface),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "⚈  1 special character",
-                            style: TextStyle(
-                                color: containsSpecialChar
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSurface),
-                          ),
-                          Text(
-                            "⚈  8 minimum character",
-                            style: TextStyle(
-                                color: contains8Length
-                                    ? Theme.of(context).primaryColor
-                                    : Theme.of(context).colorScheme.onSurface),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "⚈  1 uppercase",
+                  //           style: TextStyle(
+                  //               color: containsUpperCase
+                  //                   ? Theme.of(context).primaryColor
+                  //                   : Theme.of(context).colorScheme.onSurface),
+                  //         ),
+                  //         Text(
+                  //           "⚈  1 lowercase",
+                  //           style: TextStyle(
+                  //               color: containsLowerCase
+                  //                   ? Theme.of(context).primaryColor
+                  //                   : Theme.of(context).colorScheme.onSurface),
+                  //         ),
+                  //         Text(
+                  //           "⚈  1 number",
+                  //           style: TextStyle(
+                  //               color: containsNumber
+                  //                   ? Theme.of(context).primaryColor
+                  //                   : Theme.of(context).colorScheme.onSurface),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.start,
+                  //       children: [
+                  //         Text(
+                  //           "⚈  1 special character",
+                  //           style: TextStyle(
+                  //               color: containsSpecialChar
+                  //                   ? Theme.of(context).primaryColor
+                  //                   : Theme.of(context).colorScheme.onSurface),
+                  //         ),
+                  //         Text(
+                  //           "⚈  8 minimum character",
+                  //           style: TextStyle(
+                  //               color: contains8Length
+                  //                   ? Theme.of(context).primaryColor
+                  //                   : Theme.of(context).colorScheme.onSurface),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 10),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: MyTextField(
@@ -259,7 +259,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: MyTextField(
                       controller: cnicController,
-                      hintText: 'CNIC',
+                      hintText: 'CNIC(1111-11111111-1)',
                       obscureText: false,
                       keyboardType: TextInputType.number,
                       prefixIcon:
@@ -267,7 +267,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       validator: (val) {
                         if (val!.isEmpty) {
                           return 'Please fill in this field';
-                        } else if (!RegExp(r'^\d{13}$').hasMatch(val.replaceAll("-", ""))) {
+                        } else if (!RegExp(r'^\d{13}$')
+                            .hasMatch(val.replaceAll("-", ""))) {
                           return 'Invalid CNIC (13 digits required)';
                         }
                         return null;
@@ -281,6 +282,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
+                                  String raw =
+                                      cnicController.text.replaceAll("-", "");
+                                  if (raw.length >= 13) {
+                                    cnicController.text =
+                                        '${raw.substring(0, 5)}-${raw.substring(5, 12)}-${raw.substring(12)}';
+                                  }
                                   Map<String, dynamic> userLocation =
                                       await LocationServicesImp().getLocation();
 

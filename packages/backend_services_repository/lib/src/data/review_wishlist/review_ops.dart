@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:backend_services_repository/backend_service_repositoy.dart';
-import 'package:backend_services_repository/src/models/user/entities/entities.dart';
 import 'package:flutter/foundation.dart';
 import "package:http/http.dart" as http;
 
@@ -52,6 +51,7 @@ class ReviewOps {
       );
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
+        print(jsonResponse);
         return Result.success(
             jsonResponse);
       } else if (response.statusCode >= 400 && response.statusCode < 500) {

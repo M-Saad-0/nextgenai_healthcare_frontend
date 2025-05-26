@@ -1,6 +1,4 @@
-import 'package:hive/hive.dart';
 import 'package:backend_services_repository/backend_service_repositoy.dart';
-import 'package:backend_services_repository/src/models/user/entities/entities.dart';
 
 class LocalUserData {
   static final LocalUserData _instance = LocalUserData._internal();

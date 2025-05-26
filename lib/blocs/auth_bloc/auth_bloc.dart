@@ -10,12 +10,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthenticationImp authentication;
   AuthBloc({required this.authentication}) : super(AuthInitial()) {
     on<Authenticate>((event, emit) async {
+      print("Event ${event}");
       emit(AuthLoading());
       try {
         User? user = authentication.checkUserAccountOnStartUp();
         if (user != null) {
           final location = await LocationServicesImp().getLocation();
-          user.setLocation(lat: location['latitude'], long: location['longitude']);
+          user.setLocation(
+              lat: location['latitude'], long: location['longitude']);
           emit(AuthLoadingSuccess(user: user));
         } else {
           debugPrint("here");
@@ -33,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await GoogleSignInAuth.logOut();
       }
       print("***************************************************");
-      authentication.logout();
+      await authentication.logout();
       emit(AuthLogoutState());
       // add(Authenticate());
     });
@@ -48,7 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           print("$account");
           Map<String, dynamic> userLocation =
               await LocationServicesImp().getLocation();
-              print(userLocation);
+          print(userLocation);
           final user = User(
               userId: account!.id,
               userName: account.displayName ?? "",
@@ -68,17 +70,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   user: user, idToken: googleAuntentication.idToken);
           if (result.isFailure) {
             emit(AuthError());
-          } else {
-            print(result.value!.location);
+          } else if (result.isSuccess) {
+            print("result.value!.cnic${result.value!.cnic}");
+            
+            if (result.value!.cnic == null &&
+                result.value!.phoneNumber == null) {
+                  print("******************************GoogleAuthCnicPhoneState**********************");
+              emit(GoogleAuthCnicPhoneState(user: result.value!));
+              return;
+            }
             emit(AuthLoadingSuccess(user: result.value!));
           }
         }
       } catch (e) {
-        print(
+        debugPrint(
             "**********************************************************${e.toString()}");
-        print("Stack trace: ${StackTrace.current}");
+        debugPrint("Stack trace: ${StackTrace.current}");
         emit(GoogleAuthFailed());
       }
+    });
+
+    on<GoogleAuthCnicPhoneRequired>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        Result<User, String> user =
+            await authentication.submitCnicAndPhoneNumber(event.user);
+        if (user.isFailure) {
+          emit(AuthError());
+        } else {
+          emit(AuthLoadingSuccess(user: user.value!));
+        }
+      } catch (e) {
+        debugPrint("Auth Error: $e");
+        emit(AuthError());
+      }
+    });
+
+    on<AuthCredentialsRequired>((event, emit){
+      emit(AuthCredentialsState());
     });
   }
 }

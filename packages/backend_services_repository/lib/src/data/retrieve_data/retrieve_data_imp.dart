@@ -48,7 +48,7 @@ class RetrieveDataImp extends RetrieveData {
       {Map<String, dynamic> userLocation = const {},
       required String searchTerm}) async {
     Uri uri = Uri.parse(
-        "$api/items/search?query=$searchTerm&latitude=${userLocation['latitude']}&longitude=${userLocation['longitude']}");
+        "$api/items/query?search=$searchTerm&latitude=${userLocation['coordinates'][1]}&longitude=${userLocation['coordinates'][0]}");
     debugPrint("Searching items from $uri");
 
     try {
@@ -67,6 +67,7 @@ class RetrieveDataImp extends RetrieveData {
             "Could not find $searchTerm";
         return Result.failure(error);
       } else {
+        print("JSON RESPONSE: ${response.body}");
         return Result.failure("An unexpected error occurred");
       }
     } catch (e) {
@@ -166,8 +167,8 @@ class RetrieveDataImp extends RetrieveData {
         Uri.parse("$api/items/$itemId"),
         headers: {'Content-Type': 'application/json'},
       );
-      if (response.statusCode == 200) {
-        return Result.success(jsonDecode(response.body)['message']);
+      if (response.statusCode == 204) {
+        return Result.success(jsonDecode(response.body)['message']=="item deleted");
       } else if (response.statusCode == 404) {
         return Result.failure("The item does not exist");
       } else if (response.statusCode == 403) {

@@ -10,7 +10,7 @@ class MarkdownWidgetCustom extends StatelessWidget {
     final theme = Theme.of(context);
     return SelectionArea(
       child: Markdown(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         data: markdownData,
         shrinkWrap: true,
         styleSheet: MarkdownStyleSheet(
@@ -36,7 +36,7 @@ class MarkdownWidgetCustom extends StatelessWidget {
           blockquote: TextStyle(
             color: theme.hintColor,
             fontStyle: FontStyle.italic,
-            backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+            backgroundColor: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
           ),
           code: TextStyle(
             backgroundColor: theme.colorScheme.onSurface.withOpacity(0.1),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/borrowing_process_bloc/borrowing_process_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_request_order_bloc/item_request_order_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/error_page.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/not_found_page_.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/item_order_page.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/location_map_page.dart';
 
@@ -41,10 +43,8 @@ class _ItemRequestPageState extends State<ItemRequestPage> {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            case ItemRequestOrderError():
-              return Center(
-                child: Text(state.errorMessage),
-              );
+             case ItemRequestOrderError():
+              return const NotFoundPage(thing: "Requests", icon: Icons.list_alt,);
             case ItemRequestOrderSuccess():
               {
                 return ListView.builder(
@@ -75,14 +75,14 @@ class _ItemRequestPageState extends State<ItemRequestPage> {
                                         context: context,
                                         builder: (context) {
                                           return LocationMapPage(
-                                              itemLocation: item.location,
-                                              userLocation:
-                                                  widget.user.location!,
+                                              itemDocs:itemDocs,
+                                              user:
+                                                  widget.user,
                                               item: item);
                                         });
                                   },
                                   title: Text(item.itemName),
-                                  subtitle: Text("${item.price} RS"),
+                                  subtitle: Text("${item.price} RS\t\t${itemDocs['paymentMethod']=="dynamic"?"":itemDocs['paymentMethod']}"),
                                   leading: Image(
                                       image: NetworkImage(item.images[0])),
                                   trailing: Row(

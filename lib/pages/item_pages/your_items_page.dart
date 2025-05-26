@@ -3,28 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/create_item_bloc/create_item_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/your_items_bloc/your_items_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/not_found_page_.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/add_item.dart';
 import 'package:next_gen_ai_healthcare/widgets/your_item_widget.dart';
 
 class YourItemsPage extends StatefulWidget {
-  final String userId;
-  const YourItemsPage({super.key, required this.userId});
+  final User user;
+  const YourItemsPage({super.key, required this.user});
 
   @override
   State<YourItemsPage> createState() => _YourItemsPageState();
 }
 
 class _YourItemsPageState extends State<YourItemsPage> {
-  String selectedItemId = "";
+  List<String> selectedItemId = [];
 
   @override
   void initState() {
     super.initState();
-    context.read<YourItemsBloc>().add(YourItemsLoadEvent(userId: widget.userId));
+    context.read<YourItemsBloc>().add(YourItemsLoadEvent(userId: widget.user.userId));
   }
 
   void _refreshItems() {
-    context.read<YourItemsBloc>().add(YourItemsLoadEvent(userId: widget.userId));
+    context.read<YourItemsBloc>().add(YourItemsLoadEvent(userId: widget.user.userId));
   }
 
   @override
@@ -42,31 +43,31 @@ class _YourItemsPageState extends State<YourItemsPage> {
                           YourItemsDeleteEvent(itemId: selectedItemId),
                         );
                     setState(() {
-                      selectedItemId = "";
+                      selectedItemId.clear();
                     });
                   },
                 ),
                 const VerticalDivider(),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider(
-                          create: (_) => CreateItemBloc(storeData: StoreDataImp()),
-                          child: const AddItem(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const VerticalDivider(),
+                // IconButton(
+                //   icon: const Icon(Icons.edit),
+                //   onPressed: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => BlocProvider(
+                //           create: (_) => CreateItemBloc(storeData: StoreDataImp()),
+                //           child: const AddItem(),
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // ),
+                // const VerticalDivider(),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
                     setState(() {
-                      selectedItemId = "";
+                      selectedItemId.clear();
                     });
                   },
                 ),
@@ -94,7 +95,7 @@ class _YourItemsPageState extends State<YourItemsPage> {
                           return GestureDetector(
                             onLongPress: () {
                               setState(() {
-                                selectedItemId = item.itemId;
+                                selectedItemId.add(item.itemId);
                               });
                             },
                             child: YourItemWidget(
@@ -104,7 +105,7 @@ class _YourItemsPageState extends State<YourItemsPage> {
                               seller: item.seller,
                               sold: item.sold,
                               rating: item.rating,
-                              darkenBackground: selectedItemId == item.itemId,
+                              darkenBackground: selectedItemId.contains(item.itemId),
                             ),
                           );
                         },
@@ -114,23 +115,10 @@ class _YourItemsPageState extends State<YourItemsPage> {
           } else if (state is YourItemsErrorState) {
             return RefreshIndicator(
               onRefresh: () async => _refreshItems(),
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        state.errorMessage,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: const NotFoundPage(thing: "Medical Equipments", icon: Icons.medical_services,)
             );
           }
-          return const Center(child: Text("No items yet"));
+          return const NotFoundPage(thing: "Medical Equipments", icon: Icons.medical_services,);
         },
       ),
       floatingActionButton: FloatingActionButton(

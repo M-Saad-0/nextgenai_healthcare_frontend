@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:backend_services_repository/backend_service_repositoy.dart';
-import 'package:backend_services_repository/src/models/item/entities/entities.dart';
 import 'package:backend_services_repository/src/utils/order_and_payment.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart';
 
 class OrderAndPaymentImp extends OrderAndPayment {
   @override
@@ -95,19 +93,13 @@ class OrderAndPaymentImp extends OrderAndPayment {
 
   @override
   Future<Result<String, String>> paymentGateway(
-      User user, Item item, String paymentOption) async {
-    final response = await http.post(
-      Uri.parse('$api/payment-gateway'),
+      Map<String, dynamic> itemBorrowed) async {
+    final response = await http.put(
+      Uri.parse('$api/borrowed_item/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({
-        'borrowerId': user.userId,
-        'lenterId': item.userId,
-        'itemId': item.itemId,
-        'price': item.price,
-        'paymentOption': paymentOption,
-      }),
+      body: jsonEncode(itemBorrowed),
     );
 
     if (response.statusCode == 201) {
@@ -125,36 +117,67 @@ class OrderAndPaymentImp extends OrderAndPayment {
 
   @override
   Future<Result<bool, String>> updateBorrowedItem(
-    Map<String, dynamic> borrowedItem) async {
-  try {
-    debugPrint("Sending PUT request to: $api/borrowed-items/${borrowedItem['_id']}");
-    debugPrint("Request Body: ${jsonEncode(borrowedItem)}");
+      Map<String, dynamic> borrowedItem) async {
+    try {
+      debugPrint(
+          "Sending PUT request to: $api/borrowed-items/${borrowedItem['_id']}");
+      debugPrint("Request Body: ${jsonEncode(borrowedItem)}");
 
-    final request = await http.put(
-      Uri.parse("$api/borrowed-items/${borrowedItem['_id']}"),
+      final request = await http.put(
+        Uri.parse("$api/borrowed-items/${borrowedItem['_id']}"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(borrowedItem),
+      );
+
+      debugPrint("Response status: ${request.statusCode}");
+      debugPrint("Response body: ${request.body}");
+
+      if (request.statusCode == 200) {
+        return Result.success(true);
+      } else if (request.statusCode == 500) {
+        return Result.failure("We are very sorry, there was a server error!");
+      } else if (request.statusCode >= 400 && request.statusCode < 500) {
+        debugPrint("I think this is where it ends");
+
+        return Result.failure("We are sorry, we could not find this item.");
+      } else {
+        debugPrint("I think this is where it ends");
+
+        return Result.failure("Some unexpected error occured");
+      }
+    } catch (e) {
+      debugPrint("Exception caught: $e");
+      return Result.failure(e.toString());
+    }
+  }
+
+  Future<Map<String, dynamic>> sendRequestToStripe({
+    required Map<String, dynamic> paymentJson,
+  }) async {
+    final uri = Uri.parse('$api/create-payment-intent');
+    final response = await http.post(
+      uri,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(borrowedItem),
+      body: jsonEncode(paymentJson),
     );
 
-    debugPrint("Response status: ${request.statusCode}");
-    debugPrint("Response body: ${request.body}");
-
-    if (request.statusCode == 200) {
-      return Result.success(true);
-    } else if (request.statusCode == 500) {
-      return Result.failure("We are very sorry, there was a server error!");
-    } else if (request.statusCode >= 400 && request.statusCode < 500) {
-    debugPrint("I think this is where it ends");
-
-      return Result.failure("We are sorry, we could not find this item.");
-    } else {
-    debugPrint("I think this is where it ends");
-
-      return Result.failure("Some unexpected error occured");
+    final jsonResponse = jsonDecode(response.body);
+    if (!jsonResponse.containsKey('clientSecret')) {
+      return {};
     }
-  } catch (e) {
-    debugPrint("Exception caught: $e");
-    return Result.failure(e.toString());
+    return jsonResponse;
   }
-}
+
+  Future<Map<String, dynamic>> createSellerStripeAccount(String userId) async {
+    final response = await http.post(Uri.parse("$api/create-connect-account"),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'userId': userId}));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {};
+    }
+  }
 }

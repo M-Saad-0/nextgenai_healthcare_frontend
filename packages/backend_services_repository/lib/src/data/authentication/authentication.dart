@@ -15,41 +15,44 @@ abstract class Authentication {
   Future<Result<User, String>> login(
       {required String email, required String password});
   Future<void> logout();
+  Future<Result<User, String>> submitCnicAndPhoneNumber(User user);
 }
 
 class AuthenticationImp extends Authentication {
   @override
-  User? checkUserAccountOnStartUp()  {
+  User? checkUserAccountOnStartUp() {
     // print("Dddddddddd");
-    User? checkUser =  LocalUserData().getUser();
+    User? checkUser = LocalUserData().getUser();
     return checkUser;
   }
 
   @override
   Future<Result<User, String>> createAnAccount(
       {required User user, required String password}) async {
-   try { Uri url = Uri.parse("$api/users/register");
-    Map<String, dynamic> toSend = UserEntity.toJson(User.toEntity(user));
-    toSend['password'] = password;
+    try {
+      Uri url = Uri.parse("$api/users/register");
+      Map<String, dynamic> toSend = UserEntity.toJson(User.toEntity(user));
+      toSend['password'] = password;
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: json.encode(toSend),
-    );
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(toSend),
+      );
 
-    if (response.statusCode == 201) {
-      final responseBody = json.decode(response.body);
-      User updatedUser = User.fromEntity(UserEntity.fromJson(responseBody));
-      LocalUserData().insertUser(updatedUser);
-      return Result.success(updatedUser);
-    } else if (response.statusCode >= 400 && response.statusCode < 500) {
-      final responseBody = json.decode(response.body);
-      return Result.failure(responseBody['message']);
-    } else {
-      return Result.failure('');
-      // return Result.failure('An unexpected error occurred.');
-    }} catch (e){
+      if (response.statusCode == 201) {
+        final responseBody = json.decode(response.body);
+        User updatedUser = User.fromEntity(UserEntity.fromJson(responseBody));
+        LocalUserData().insertUser(updatedUser);
+        return Result.success(updatedUser);
+      } else if (response.statusCode >= 400 && response.statusCode < 500) {
+        final responseBody = json.decode(response.body);
+        return Result.failure(responseBody['message']);
+      } else {
+        return Result.failure('');
+        // return Result.failure('An unexpected error occurred.');
+      }
+    } catch (e) {
       return Result.failure(e.toString());
     }
   }
@@ -108,7 +111,8 @@ class AuthenticationImp extends Authentication {
     userJson['idToken'] = idToken;
     print(userJson);
     final response = await http.post(uri,
-        headers: {'Content-Type': "application/json"}, body: json.encode(userJson));
+        headers: {'Content-Type': "application/json"},
+        body: json.encode(userJson));
     if (response.statusCode >= 400 && response.statusCode <= 600) {
       debugPrint("**************400-600***************");
       return Result.failure(json.decode(response.body)['message']);
@@ -116,11 +120,35 @@ class AuthenticationImp extends Authentication {
       debugPrint("*************201****************");
       final responseBody = json.decode(response.body);
       debugPrint(responseBody.toString());
+      print(responseBody);
+      if (responseBody['userType'] == 'newUser') {
+        User loggedInUser = User.fromEntity(UserEntity.fromJson(responseBody));
+        return Result.success(loggedInUser);
+      }
       User loggedInUser = User.fromEntity(UserEntity.fromJson(responseBody));
       await saveAccountLocally(user: loggedInUser);
       return Result.success(loggedInUser);
     } else {
       return Result.failure('An unexpected error occurred.');
+    }
+  }
+
+  @override
+  Future<Result<User, String>> submitCnicAndPhoneNumber(User user) async {
+    
+    final response = await http.post(Uri.parse("$api/users/register"),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(UserEntity.toJson(User.toEntity(user))));
+    if (response.statusCode == 201) {
+      final responseBody = json.decode(response.body);
+      User updatedUser = User.fromEntity(UserEntity.fromJson(responseBody));
+      await saveAccountLocally(user: updatedUser);
+      return Result.success(updatedUser);
+    } else if (response.statusCode >= 400 && response.statusCode < 600) {
+      final responseBody = json.decode(response.body);
+      return Result.failure(responseBody['message']);
+    } else {
+      return Result.failure("An unexpected error occurred.");
     }
   }
 }

@@ -59,7 +59,7 @@ class ItemWidget extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -67,21 +67,14 @@ class ItemWidget extends StatelessWidget {
                     title,
                     // maxLines: 2,
                     // overflow: TextOverflow.ellipsis,
-                    // style: theme.textTheme.bodyMedium?.copyWith(
-                    //   fontWeight: FontWeight.bold,
-                    //   fontSize: 14,
-                    // ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
                   Row(
                     children: [
-                      Text(
-                        seller,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const VerticalDivider(),
+                      
                       Text(
                         '$sold sold',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -109,7 +102,7 @@ class ItemWidget extends StatelessWidget {
                         rating.toStringAsFixed(1),
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                     ],

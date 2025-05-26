@@ -1,6 +1,9 @@
+import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:next_gen_ai_healthcare/blocs/chat_bloc/chat_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/symptoms_bloc/symptoms_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/chat_pages/ai_chatbot.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class AiDiagnosisPage extends StatefulWidget {
@@ -17,7 +20,8 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
   final GlobalKey _key = GlobalKey<FormState>();
   final TextEditingController _textController = TextEditingController();
   final Set<String> _visibleCards = {};
-
+  List<String> symptomsHistory = [];
+  late DiagnosisChatSave chatSave;
   @override
   void initState() {
     super.initState();
@@ -25,7 +29,8 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-
+    chatSave = DiagnosisChatSave();
+    symptomsHistory = chatSave.getSymtomsData();
     // _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
   }
 
@@ -136,197 +141,265 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
         title: const Text('AI Symptoms Analysis'),
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                context.read<SymptomsBloc>().add(SymptomsResetEvent());
+                _textController.clear();
+              })
+        ],
       ),
-      body: BlocBuilder<SymptomsBloc, SymptomsState>(
-        builder: (context, state) {
-          switch (state) {
-            case SymptomsInitial():
-              return Center(
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _key,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.biotech_outlined,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 80,
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            "Enter your symptoms",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            autofocus: true,
-                            autocorrect: true,
-                            controller: _textController,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return "Please enter your symptom";
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              hintText: "e.g. headache, nausea",
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
+      drawer: SafeArea(
+        child: Drawer(
+          child: Column(
+            children: [
+                const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
+                  "Symptoms History",
+                  style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  ),
+                ),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: symptomsHistory.length,
+                    itemBuilder: (context, index) => ListTile(
+                          title: Text(symptomsHistory[index]),
+                          onTap: () {
+        
+                            context.read<SymptomsBloc>().add(SymptomsPredictEvent(
+                                symptoms: symptomsHistory[index]
+                                    .split(",")
+                                    .map((e) => e.trim())
+                                    .toList()));
+                          },
+                        )),
+              )
+            ],
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage(Theme.of(context).brightness==Brightness.dark?"assets/images/chat_bg_dark.png":"assets/images/chat_bg_light.png"),
+repeat: ImageRepeat.repeat,)
+        ),
+        child: BlocBuilder<SymptomsBloc, SymptomsState>(
+          builder: (context, state) {
+            switch (state) {
+              case SymptomsInitial():
+                return Center(
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _key,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.biotech_outlined,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 80,
                             ),
-                          ),
-                          const SizedBox(height: 30),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                if ((_key.currentState as FormState)
-                                    .validate()) {
-                                  context.read<SymptomsBloc>().add(
-                                        SymptomsPredictEvent(
-                                            symptoms: _textController.text
-                                                .split(', ')),
-                                      );
+                            const SizedBox(height: 24),
+                            Text(
+                              "Enter your symptoms",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              autofocus: true,
+                              autocorrect: true,
+                              controller: _textController,
+                              validator: (v) {
+                                if (v == null || v.trim().isEmpty) {
+                                  return "Please enter your symptom";
                                 }
+                                return null;
                               },
-                              icon: const Icon(Icons.search),
-                              label: const Text("Submit Symptoms"),
-                              style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
+                              decoration: InputDecoration(
+                                hintText: "e.g. headache, nausea",
+                                border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12)),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 30),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  if ((_key.currentState as FormState)
+                                      .validate()) {
+                                    chatSave
+                                        .saveSymptomsData(_textController.text);
+                                    context.read<SymptomsBloc>().add(
+                                          SymptomsPredictEvent(
+                                              symptoms: _textController.text
+                                                  .split(',')
+                                                  .map((e) => e.trim())
+                                                  .toList()),
+                                        );
+                                  }
+                                },
+                                icon: const Icon(Icons.search),
+                                label: const Text("Submit Symptoms"),
+                                style: ElevatedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            case SymptomsLoadingState():
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            case SymptomsErrorState():
-              return const Center(
-                child: Text(
-                  'An error occurred. Please try again later.',
-                  style: TextStyle(
-                    fontSize: 16,
+                );
+              case SymptomsLoadingState():
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              case SymptomsErrorState():
+                return const Center(
+                  child: Text(
+                    'An error occurred. Please try again later.',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              );
-            case SymptomsSuccessState():
-              return SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       horizontal: 20, vertical: 12),
-                      //   child: Text(
-                      //     'Most Probable Diseases',
-                      //     textAlign: TextAlign.start,
-                      //     style: TextStyle(
-                      //       fontSize: 22,
-                      //       fontWeight: FontWeight.bold,
-                      //       color: Theme.of(context).colorScheme.primary,
-                      //     ),
-                      //   ),
-                      // ),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              diseaseProbability(state.result.keys.toList()[0],
-                                  state.result.values.toList()[0]),
-                                  const SizedBox(height: 8,),
-                              diseaseProbability(state.result.keys.toList()[1],
-                                  state.result.values.toList()[1]),
-                                  const SizedBox(height: 8,),
-
-                              diseaseProbability(state.result.keys.toList()[2],
-                                  state.result.values.toList()[2]),
-                                  const SizedBox(height: 8,),
-
-                              diseaseProbability(state.result.keys.toList()[3],
-                                  state.result.values.toList()[3]),
-                                  const SizedBox(height: 8,),
-
-                              diseaseProbability(state.result.keys.toList()[4],
-                                  state.result.values.toList()[4]),
-                            ],
+                );
+              case SymptomsSuccessState():
+                return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 20, vertical: 12),
+                        //   child: Text(
+                        //     'Most Probable Diseases',
+                        //     textAlign: TextAlign.start,
+                        //     style: TextStyle(
+                        //       fontSize: 22,
+                        //       fontWeight: FontWeight.bold,
+                        //       color: Theme.of(context).colorScheme.primary,
+                        //     ),
+                        //   ),
+                        // ),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                diseaseProbability(state.result.keys.toList()[0],
+                                    state.result.values.toList()[0]),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                diseaseProbability(state.result.keys.toList()[1],
+                                    state.result.values.toList()[1]),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                diseaseProbability(state.result.keys.toList()[2],
+                                    state.result.values.toList()[2]),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                diseaseProbability(state.result.keys.toList()[3],
+                                    state.result.values.toList()[3]),
+                                const SizedBox(
+                                  height: 8,
+                                ),
+                                diseaseProbability(state.result.keys.toList()[4],
+                                    state.result.values.toList()[4]),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //       horizontal: 20, vertical: 12),
-                      //   child: Text(
-                      //     textAlign: TextAlign.start,
-                      //     'Other Information',
-                      //     style: TextStyle(
-                      //       fontSize: 22,
-                      //       fontWeight: FontWeight.bold,
-                      //       color: Theme.of(context).colorScheme.primary,
-                      //     ),
-                      //   ),
-                      // ),
-                      reusableInfoCard('Disease (Most Probable)',
-                          state.result.entries.first.key),
-                      reusableInfoCard('Description',
-                          state.description ?? "No Description Information"),
-                      reusableInfoCard('Diet Recommendation',
-                          state.diets ?? "No Diet Information"),
-                      reusableInfoCard('Medications',
-                          state.medications ?? "No Medication Information"),
-                      reusableInfoCard('Precautions',
-                          state.precautionDf ?? "No Precautions Information"),
-                      reusableInfoCard(
-                          'Severity',
-                          state.symptomSeverity?.toString() ??
-                              "No Severity Information"),
-                                  const SizedBox(height: 8,),
-
-                      SizedBox(
-                        width: MediaQuery.sizeOf(context).width - 50,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            context
-                                .read<SymptomsBloc>()
-                                .add(SymptomsResetEvent());
-                            _textController.clear();
-                          },
-                          icon: const Icon(Icons.refresh),
-                          label: const Text("Try Again"),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 20, vertical: 12),
+                        //   child: Text(
+                        //     textAlign: TextAlign.start,
+                        //     'Other Information',
+                        //     style: TextStyle(
+                        //       fontSize: 22,
+                        //       fontWeight: FontWeight.bold,
+                        //       color: Theme.of(context).colorScheme.primary,
+                        //     ),
+                        //   ),
+                        // ),
+                        reusableInfoCard('Disease (Most Probable)',
+                            state.result.entries.first.key),
+                        reusableInfoCard('Description',
+                            state.description ?? "No Description Information"),
+                        reusableInfoCard('Diet Recommendation',
+                            state.diets ?? "No Diet Information"),
+                        reusableInfoCard('Medications',
+                            state.medications ?? "No Medication Information"),
+                        reusableInfoCard('Precautions',
+                            state.precautionDf ?? "No Precautions Information"),
+                        reusableInfoCard(
+                            'Severity',
+                            state.symptomSeverity?.toString() ??
+                                "No Severity Information"),
+                        const SizedBox(
+                          height: 8,
+                        ),
+        
+                        SizedBox(
+                          width: MediaQuery.sizeOf(context).width - 50,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BlocProvider(
+                                    create: (context) => ChatBloc(
+                                        ChatRequestImp(), ChatRepositoryImp()),
+                                    child: AiChatBot(
+                                      question:
+                                          "What are the most effective treatment options available for ${state.result.entries.first.key}, and how soon can I expect to see improvement?",
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.refresh),
+                            label: const Text("Get More Info"),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ));
-          }
-        },
+                      ],
+                    ));
+            }
+          },
+        ),
       ),
     );
   }

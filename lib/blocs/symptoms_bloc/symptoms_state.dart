@@ -41,3 +41,10 @@ final class SymptomsSuccessState extends SymptomsState {
       ];
 }
 
+// final class SymptomsHistoryState extends SymptomsState {
+//   final List<String> symptomsList;
+//   const SymptomsHistoryState({required this.symptomsList});
+//   @override 
+//   List<Object> get props => [symptomsList];
+// }
+// final class SymptomsHistoryLoadingState extends SymptomsState {}

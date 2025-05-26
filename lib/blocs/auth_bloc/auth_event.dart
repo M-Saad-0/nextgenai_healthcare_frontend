@@ -10,14 +10,13 @@ sealed class AuthEvent extends Equatable {
 class Authenticate extends AuthEvent {}
 
 class GoogleAuthRequired extends AuthEvent {}
+class AuthCredentialsRequired extends AuthEvent {}
 
 class GoogleAuthCnicPhoneRequired extends AuthEvent {
-  final String cnic;
-  final String phoneNumber;
-  const GoogleAuthCnicPhoneRequired(
-      {required this.cnic, required this.phoneNumber});
+  final User user;
+  const GoogleAuthCnicPhoneRequired({required this.user});
   @override
-  List<Object> get props => [cnic, phoneNumber];
+  List<Object> get props => [ user];
 }
 
 class AuthLogout extends AuthEvent {}

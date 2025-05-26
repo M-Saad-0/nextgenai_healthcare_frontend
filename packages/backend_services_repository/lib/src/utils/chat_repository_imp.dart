@@ -11,7 +11,7 @@ class ChatRepositoryImp implements ChatRepository {
     final allKeys = await getChatKeys();
     String? targetKey;
     for (var i in allKeys) {
-      print("$i --------- ${models.last.date}");
+      // print("$i --------- ${models.last.date}");
       if (i.contains(models.last.date.split("T")[0])) {
         print(true);
         targetKey = i;

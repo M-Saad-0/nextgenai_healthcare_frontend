@@ -8,6 +8,7 @@ class UserEntity {
   Map<String, dynamic>? location;
   String? cnic;
   String? phoneNumber;
+  String? accountId;
 
   UserEntity({
     required this.userId,
@@ -19,6 +20,8 @@ class UserEntity {
     this.personReputation = 0,
     this.cnic,
     this.phoneNumber,
+    this.accountId,
+
   });
 
   static UserEntity fromJson(Map<String, dynamic> jsonObject) {
@@ -32,6 +35,7 @@ class UserEntity {
       location: jsonObject['location'] ?? {},
       cnic: jsonObject['cnic'],
       phoneNumber: jsonObject['phoneNumber'],
+      accountId: jsonObject['accountId'],
     );
   }
 
@@ -46,6 +50,7 @@ class UserEntity {
       'location': userEntity.location ?? {},
       'cnic': userEntity.cnic,
       'phoneNumber': userEntity.phoneNumber,
+      'accountId': userEntity.accountId,
     };
   }
 }

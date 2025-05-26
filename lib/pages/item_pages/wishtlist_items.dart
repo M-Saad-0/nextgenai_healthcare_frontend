@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/review_bloc/review_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/wishlist_bloc/wishlist_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/error_page.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/not_found_page_.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/item_detail_page.dart';
 
 class WishtlistItems extends StatefulWidget {
@@ -26,7 +28,7 @@ class _WishtlistItemsState extends State<WishtlistItems> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Wishlist Items"),
+        title: const Text("Favourite   Items"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -100,18 +102,16 @@ class _WishtlistItemsState extends State<WishtlistItems> {
                       );
                     });
               case WishlistErrorState():
-                return Center(
-                  child: Text(
-                    state.error,
-                    style: const TextStyle(color: Colors.redAccent),
-                  ),
+                return const NotFoundPage(
+                  icon: Icons.favorite_border_rounded,
+                  thing: "Favourites"
                 );
               default:
-                return const Center(
-                  child: Text(
+                return const ErrorPage(
+                  errorMessage:
                     "Some unexpected error occured",
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
+                   
+                  
                 );
             }
           },

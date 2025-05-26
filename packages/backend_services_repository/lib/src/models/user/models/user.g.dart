@@ -24,13 +24,16 @@ class UserAdapter extends TypeAdapter<User> {
       picture: fields[4] as String?,
       location: (fields[6] as Map?)?.cast<String, dynamic>(),
       personReputation: fields[5] as double?,
+      cnic: fields[7] as String?,
+      phoneNumber: fields[8] as String?,
+      accountId: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.userId)
       ..writeByte(1)
@@ -44,7 +47,13 @@ class UserAdapter extends TypeAdapter<User> {
       ..writeByte(5)
       ..write(obj.personReputation)
       ..writeByte(6)
-      ..write(obj.location);
+      ..write(obj.location)
+      ..writeByte(7)
+      ..write(obj.cnic)
+      ..writeByte(8)
+      ..write(obj.phoneNumber)
+      ..writeByte(9)
+      ..write(obj.accountId);
   }
 
   @override

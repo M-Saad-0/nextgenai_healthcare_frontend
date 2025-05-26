@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:backend_services_repository/backend_service_repositoy.dart';
-import 'package:backend_services_repository/src/models/item/entities/entities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart' as http;
@@ -10,11 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
 class StoreDataImp extends StoreData {
-  final String blobSASUrl =
-      '''https://nextgemedcare.blob.core.windows.net/nextgenmedcare-images?sp=r&st=2024-12-16T10:29:59Z&se=2024-12-27T18:29:59Z&spr=https&sv=2022-11-02&sr=c&sig=jTXfAuzT4xCcWmXR3%2FjSdr4mdb%2FNBwyj%2BeD59%2FdIR1s%3D''';
-  final String blobSASToken =
-      '''sp=r&st=2024-12-16T10:29:59Z&se=2024-12-27T18:29:59Z&spr=https&sv=2022-11-02&sr=c&sig=jTXfAuzT4xCcWmXR3%2FjSdr4mdb%2FNBwyj%2BeD59%2FdIR1s%3D''';
-  @override
+   @override
   Future<Result<String, String>> storeAnItem({required Item item}) async {
     Uri url = Uri.parse("$api/items");
 
@@ -69,7 +64,7 @@ class StoreDataImp extends StoreData {
         "${DateTime.now().millisecondsSinceEpoch}_${path.basename(file.path)}");
     var imagePath = file.absolute.path;
     var result =
-        await FlutterImageCompress.compressAndGetFile(imagePath, targetPath);
+        await FlutterImageCompress.compressAndGetFile(imagePath, targetPath, quality: 50);
     return result == null ? File(result!.path) : file;
   }
 

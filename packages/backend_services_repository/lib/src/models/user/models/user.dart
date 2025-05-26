@@ -1,9 +1,10 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:backend_services_repository/src/models/user/entities/entities.dart';
+import 'package:equatable/equatable.dart';
 part 'user.g.dart';
 
 @HiveType(typeId: 2)
-class User extends HiveObject {
+class User extends HiveObject implements EquatableMixin{
   @HiveField(0)
   final String userId;
   @HiveField(1)
@@ -22,6 +23,9 @@ class User extends HiveObject {
   String? cnic;
   @HiveField(8)
   String? phoneNumber;
+  @HiveField(9)
+  String? accountId;
+
 
   void setLocation({required double lat, required double long}) {
     location = {
@@ -40,6 +44,7 @@ class User extends HiveObject {
     this.personReputation = 0,
     this.cnic,
     this.phoneNumber,
+    this.accountId,
   });
 
   static UserEntity toEntity(User user) {
@@ -53,6 +58,7 @@ class User extends HiveObject {
       personReputation: user.personReputation,
       cnic: user.cnic,
       phoneNumber: user.phoneNumber,
+      accountId: user.accountId,
     );
   }
 
@@ -67,6 +73,42 @@ class User extends HiveObject {
       personReputation: userEntity.personReputation,
       cnic: userEntity.cnic,
       phoneNumber: userEntity.phoneNumber,
+      accountId: userEntity.accountId,
     );
   }
+
+  User copyWith(
+      {String? userId,
+      String? userName,
+      String? password,
+      String? email,
+      String? picture,
+      Map<String, dynamic>? location,
+      double? personReputation,
+      String? cnic,
+      String? phoneNumber,
+      String? accountId}) {
+    return User(
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      email: email ?? this.email,
+      picture: picture??this.picture,
+      cnic:cnic??this.cnic,
+      phoneNumber:phoneNumber??this.phoneNumber,
+      personReputation:personReputation??this.personReputation,
+      location:location??this.location,
+      password:password??this.password,
+      accountId: accountId ?? this.accountId,
+
+
+    );
+  }
+  
+  @override
+  List<Object?> get props => [userId, userName, email, cnic, phoneNumber, location, picture, password, personReputation, accountId];
+  
+  @override
+  bool? get stringify => true;
+  
+
 }

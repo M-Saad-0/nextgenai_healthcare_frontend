@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/calculate_location_bloc/calculate_location_bloc.dart';
 
@@ -27,7 +26,7 @@ class _CalculateLocationTextState extends State<CalculateLocationText> {
         case CalculateLocationLoading():
           return const Center(child: CircularProgressIndicator(),);
         case CalculateLocationSuccess():
-          return Text(state.location);
+          return Text(state.location, style: TextStyle(fontSize: 13),);
       }
     });
   }

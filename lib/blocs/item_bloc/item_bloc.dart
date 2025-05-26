@@ -1,6 +1,7 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 part 'item_event.dart';
 part 'item_state.dart';
@@ -35,6 +36,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
           emit(ItemErrorState(error: result.error));
         }
       } catch (e) {
+        debugPrint(e.toString());
         emit(ItemErrorState(error: e.toString()));
       }
     });

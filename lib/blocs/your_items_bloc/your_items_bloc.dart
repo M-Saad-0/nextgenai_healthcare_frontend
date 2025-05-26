@@ -12,11 +12,10 @@ class YourItemsBloc extends Bloc<YourItemsEvent, YourItemsState> {
       emit(YourItemsLoadingState());
       try {
         final items = await itemImp.getItemsByUser(userId: event.userId);
-        if(items.isFailure){
-        emit(YourItemsErrorState(errorMessage: items.error!.toString()));
-        }else{
-        emit(YourItemsSuccessState(items: items.value!));
-
+        if (items.isFailure) {
+          emit(YourItemsErrorState(errorMessage: items.error!.toString()));
+        } else {
+          emit(YourItemsSuccessState(items: items.value!));
         }
       } catch (e) {
         emit(YourItemsErrorState(errorMessage: e.toString()));
@@ -26,8 +25,10 @@ class YourItemsBloc extends Bloc<YourItemsEvent, YourItemsState> {
     on<YourItemsDeleteEvent>((event, emit) async {
       emit(YourItemsLoadingState());
       try {
-        await itemImp.deleteItem(itemId: event.itemId);
-        emit(YourItemsDeleteState(itemId: event.itemId));
+        for (String e in event.itemId) {
+          await itemImp.deleteItem(itemId: e);
+          emit(YourItemsDeleteState(itemId: e));
+        }
       } catch (e) {
         emit(YourItemsErrorState(errorMessage: e.toString()));
       }

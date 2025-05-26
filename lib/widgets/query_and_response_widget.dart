@@ -47,13 +47,15 @@ class QueryAndResponseWidget extends StatelessWidget {
           child: Container(
             width: MediaQuery.sizeOf(context).width * .85,
             padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
+            decoration:  BoxDecoration(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(0),
                 topRight: Radius.circular(10),
                 bottomLeft: Radius.circular(10),
                 bottomRight: Radius.circular(10),
+                
               ),
+              color: Theme.of(context).colorScheme.onSecondaryFixedVariant
               
             ),
             child:

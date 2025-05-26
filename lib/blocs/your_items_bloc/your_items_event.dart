@@ -16,7 +16,7 @@ class YourItemsLoadEvent extends YourItemsEvent {
 }
 
 class YourItemsDeleteEvent extends YourItemsEvent {
-  final String itemId;
+  final List<String> itemId;
   const YourItemsDeleteEvent({required this.itemId});
   @override
   List<Object> get props => [itemId];

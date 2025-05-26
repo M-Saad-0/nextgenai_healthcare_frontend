@@ -7,7 +7,8 @@ import 'package:next_gen_ai_healthcare/pages/chat_pages/chat_page.dart';
 import 'package:next_gen_ai_healthcare/pages/chat_pages/drawer_history.dart';
 
 class AiChatBot extends StatefulWidget {
-  const AiChatBot({super.key});
+  final String question;
+  const AiChatBot({super.key, this.question = ""});
 
   @override
   State<AiChatBot> createState() => _AiChatBotState();
@@ -38,6 +39,15 @@ class _AiChatBotState extends State<AiChatBot>
       begin: 0,
       end: 1,
     ).animate(animationController);
+
+    animationController.addListener((){
+      if(dragAnimation){
+        animationController.forward();
+      }else{
+        animationController.reverse();
+        
+      }
+    });
     super.initState();
   }
 
@@ -49,16 +59,18 @@ class _AiChatBotState extends State<AiChatBot>
           final velocity = details.velocity.pixelsPerSecond.dx;
           if (velocity > 0) {
             animationController.forward();
-            dragAnimation = true;
           } else if (velocity < 0) {
             animationController.reverse();
-            dragAnimation = false;
           }
         },
         onHorizontalDragUpdate: (details) {
           if (details.delta.dx > 0) {
+            dragAnimation = true;
+
             animationController.value += details.primaryDelta! / 275;
           } else if (details.delta.dx < 0) {
+            dragAnimation = false;
+
             animationController.value += details.primaryDelta! / 275;
           }
         },
@@ -93,8 +105,11 @@ class _AiChatBotState extends State<AiChatBot>
                           icon: const Icon(Icons.menu),
                           onPressed: () {
                             if (animationController.isCompleted) {
+                              dragAnimation = false;
                               animationController.reverse();
                             } else {
+                              dragAnimation = true;
+
                               animationController.forward();
                             }
                           },
@@ -109,7 +124,7 @@ class _AiChatBotState extends State<AiChatBot>
                           )
                         ],
                       ),
-                      body: const ChatPage(),
+                      body: ChatPage(question: widget.question),
                     ),
                   ),
                 );

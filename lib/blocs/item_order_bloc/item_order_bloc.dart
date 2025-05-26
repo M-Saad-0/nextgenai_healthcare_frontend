@@ -34,11 +34,11 @@ class ItemOrderBloc extends Bloc<ItemOrderEvent, ItemOrderState> {
     on<ItemOrderPaymentEvent>((event, emit) async {
       emit(ItemOrderLoading());
       try {
-        final Result result = await orderAndPaymentImp.createOrder(event.itemDoc);
+        final Result<bool, String> result = await orderAndPaymentImp.updateBorrowedItem(event.itemDoc);
         if (result.isFailure) {
-          emit(ItemOrderError(error: result.error));
+          emit(ItemOrderError(error: result.error!));
         } else if (result.isSuccess) {
-          emit(ItemOrderSuccess(success: result.value));
+          emit(ItemOrderSuccess(success: result.value??true?"Payment successful":"Payment successful"));
         }
       } catch (e) {
         emit(ItemOrderError(error: "An unexpected error has occured $e"));

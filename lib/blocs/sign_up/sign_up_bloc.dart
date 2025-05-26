@@ -19,6 +19,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         if (result.isSuccess) {
           debugPrint("Adding AuthEvent");
           emit(SignUpSuccess(user: result.value));
+          print("Account Created");
           authBloc.add(Authenticate());
         } else {
           debugPrint(result.error);

@@ -14,6 +14,14 @@ class DrawerHistory extends StatefulWidget {
 class _DrawerHistoryState extends State<DrawerHistory> {
   @override
   Widget build(BuildContext context) {
+    String initials = widget.user.userName
+    .trim()
+    .split(" ")
+    .map((e) => e.isNotEmpty ? e[0] : "")
+    .join()
+    .toUpperCase();
+
+initials = initials.length >= 2 ? initials.substring(0, 2) : initials;
     return Drawer(
       child: RefreshIndicator(
         onRefresh: () async {
@@ -25,7 +33,7 @@ class _DrawerHistoryState extends State<DrawerHistory> {
           child: Column(
             children: [
               SizedBox(height: MediaQuery.of(context).padding.top),
-              Text(
+              const Text(
                 "Your History",
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),
@@ -37,43 +45,42 @@ class _DrawerHistoryState extends State<DrawerHistory> {
                     case ChatHistoryError():
                       return Center(child: Text(state.message));
                     case ChatHistoryLoaded():
-                      return Container(
-                        child: 
-                                 state.keys.isEmpty?const Center(child: Text("No History!!"),)
-                              : Expanded(
-                                child: ListView.builder(
-                                  // Get the list of keys and reverse it once
-                                  itemCount: state.keys.length,
-                                  itemBuilder: (context, index) {
-                                    // Access the keys in reversed order using the index
-                                    final reversedKeys = state.keys.toList().reversed.toList();
-                                    final key = reversedKeys[index];
-                                
-                                    return ListTile(
-                                      leading: const Icon(Icons.history),
-                                      // Split the key by "T" and take the first part (date) for the title
-                                      title: Text(key.split("T")[0]),
-                                      onTap: () async {
-                                        // Dispatch the LoadChatHistoryOfADay event with the selected key
-                                        context
-                                            .read<ChatHistoryBloc>()
-                                            .add(LoadChatHistoryOfADay(key));
-                                        // You might want to navigate or update the UI here
-                                      },
-                                    );
-                                  },
-                                ),
+                      return Expanded(
+                        child: state.keys.isEmpty
+                            ? const Center(
+                                child: Text("No History!!"),
                               )
-,
-                        
+                            : ListView.builder(
+                              // Get the list of keys and reverse it once
+                              itemCount: state.keys.length,
+                              itemBuilder: (context, index) {
+                                // Access the keys in reversed order using the index
+                                final reversedKeys =
+                                    state.keys.toList().reversed.toList();
+                                final key = reversedKeys[index];
+                            
+                                return ListTile(
+                                  leading: const Icon(Icons.history),
+                                  // Split the key by "T" and take the first part (date) for the title
+                                  title: Text(key.split("T")[0]),
+                                  onTap: () async {
+                                    // Dispatch the LoadChatHistoryOfADay event with the selected key
+                                    context
+                                        .read<ChatHistoryBloc>()
+                                        .add(LoadChatHistoryOfADay(key));
+                                    // You might want to navigate or update the UI here
+                                  },
+                                );
+                              },
+                            ),
                       );
                     default:
                       return const Center(child: Text('No chat history found'));
                   }
                 },
               ),
-             
-              Divider(
+              //  const Spacer(),
+              const Divider(
                 height: 0,
               ),
               ListTile(
@@ -85,12 +92,7 @@ class _DrawerHistoryState extends State<DrawerHistory> {
                       : null,
                   child: widget.user.picture == null ||
                           widget.user.picture!.isEmpty
-                      ? Text(widget.user.userName
-                          .trim()
-                          .split(" ")
-                          .map((e) => e[0])
-                          .join()
-                          .toUpperCase())
+                      ? Text(initials)
                       : null,
                 ),
                 title: Text(widget.user.userName),

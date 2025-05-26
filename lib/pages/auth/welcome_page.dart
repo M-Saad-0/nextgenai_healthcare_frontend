@@ -7,7 +7,6 @@ import 'package:next_gen_ai_healthcare/blocs/sign_up/sign_up_bloc.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/sign_in_page.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/sign_up_page.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/splash_page.dart';
-import 'package:next_gen_ai_healthcare/widgets/show_toast.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -32,7 +31,7 @@ class _WelcomePageState extends State<WelcomePage>
         });
       } else {
         setState(() {
-          heightOfCard = 450;
+          heightOfCard = 500;
         });
       }
     });
@@ -149,7 +148,7 @@ class _WelcomePageState extends State<WelcomePage>
                     GestureDetector(
                         onTap: () async {
                           context.read<AuthBloc>().add(GoogleAuthRequired());
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const SplashPage()));
+                          // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const SplashPage()));
                         },
                         child: Container(
                             decoration: BoxDecoration(

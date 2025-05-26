@@ -1,10 +1,12 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_rating/flutter_rating.dart';
 import 'package:next_gen_ai_healthcare/blocs/borrowing_process_bloc/borrowing_process_bloc.dart';
+import 'package:next_gen_ai_healthcare/blocs/item_order_bloc/item_order_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_request_order_bloc/item_request_order_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/review_bloc/review_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/error_page.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/not_found_page_.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/item_payment_page.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/location_map_page.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/review_item.dart';
@@ -45,9 +47,7 @@ class _ItemOrderPageState extends State<ItemOrderPage> {
                 child: CircularProgressIndicator(),
               );
             case ItemRequestOrderError():
-              return Center(
-                child: Text(state.errorMessage),
-              );
+              return const NotFoundPage(thing: "Orders", icon: Icons.production_quantity_limits_sharp,);
             case ItemRequestOrderSuccess():
               {
                 return ListView.builder(
@@ -76,14 +76,14 @@ class _ItemOrderPageState extends State<ItemOrderPage> {
                                       context: context,
                                       builder: (context) {
                                         return LocationMapPage(
-                                            itemLocation:
-                                                state.items[index].location,
-                                            userLocation: widget.user.location!,
+                                            itemDocs:
+                                                itemDocs,
+                                            user: widget.user,
                                             item: state.items[index]);
                                       });
                                 },
                                 title: Text(item.itemName),
-                                subtitle: Text("${item.price} RS"),
+                                subtitle: Text("${item.price} RS\t\t${itemDocs['paymentMethod']=="dynamic"?"":itemDocs['paymentMethod']}"), 
                                 leading:
                                     Image(image: NetworkImage(item.images[0])),
                                 trailing: Row(
@@ -116,11 +116,15 @@ class _ItemOrderPageState extends State<ItemOrderPage> {
                                                         Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
-                                                                builder: (context) =>
-                                                                    ItemPaymentPage(
-                                                                      itemDoc: itemDocs,
-                                                                        item:
-                                                                            item)));
+                                                                builder:
+                                                                    (context) =>
+                                                                        BlocProvider(
+                                                                          create: (context) =>
+                                                                              ItemOrderBloc(orderAndPaymentImp: OrderAndPaymentImp()),
+                                                                          child: ItemPaymentPage(
+                                                                              itemDoc: itemDocs,
+                                                                              item: item),
+                                                                        )));
                                                       },
                                                       child: const Row(
                                                         children: [

@@ -5,6 +5,8 @@ import 'package:next_gen_ai_healthcare/blocs/auth_bloc/auth_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/create_item_bloc/create_item_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_bloc/item_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/review_bloc/review_bloc.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/error_page.dart';
+import 'package:next_gen_ai_healthcare/pages/error_pages/not_found_page_.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/add_item.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/item_detail_page.dart';
 import 'package:next_gen_ai_healthcare/widgets/item_widget.dart';
@@ -119,9 +121,11 @@ class _ItemPageState extends State<ItemPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: state.items.isEmpty
-                      ? const Center(
-                          child: Text("No Items Added Yet!"),
-                        )
+                      ? RefreshIndicator(
+                  child:  const NotFoundPage(thing: "Medical Equipments", icon: Icons.medical_services,),
+                  onRefresh: () async {
+                    context.read<ItemBloc>().add(const ItemRequired());
+                  })
                       : GridView.builder(
                           itemCount: state.items.length,
                           gridDelegate:
@@ -159,20 +163,16 @@ class _ItemPageState extends State<ItemPage> {
 
             case ItemErrorState():
               return RefreshIndicator(
-                  child: Center(
-                    child: Text(
-                      state.error,
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
-                  ),
+                  child:  const NotFoundPage(thing: "Medical Equipments", icon: Icons.medical_services,),
                   onRefresh: () async {
                     context.read<ItemBloc>().add(const ItemRequired());
                   });
             default:
-              return const Center(
-                child: Text("No items yet"),
-              );
+             return RefreshIndicator(
+                  child:  const NotFoundPage(thing: "Medical Equipments", icon: Icons.medical_services,),
+                  onRefresh: () async {
+                    context.read<ItemBloc>().add(const ItemRequired());
+                  });
           }
         },
       ),

@@ -16,7 +16,7 @@ class SellerBloc extends Bloc<SellerEvent, SellerState> {
         if(result.isFailure){
           emit(SellerErrorState(err: result.error!));
         }else{
-          emit(SellerSuccessState(sellerName: result.value!['sellerName'], image: result.value!['imsge']));
+          emit(SellerSuccessState(sellerName: result.value!['sellerName'], image: result.value!['image']));
         }
       }catch (e){
         debugPrint(e.toString());

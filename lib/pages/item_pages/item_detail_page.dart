@@ -9,7 +9,6 @@ import 'package:next_gen_ai_healthcare/blocs/item_order_bloc/item_order_bloc.dar
 import 'package:next_gen_ai_healthcare/blocs/review_bloc/review_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/seller_bloc/seller_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/wishlist_bloc/wishlist_bloc.dart';
-import 'package:next_gen_ai_healthcare/pages/item_pages/item_payment_page.dart';
 import 'package:next_gen_ai_healthcare/widgets/set_item_duration.dart';
 import 'package:next_gen_ai_healthcare/widgets/show_toast.dart';
 import 'package:share_plus/share_plus.dart';
@@ -88,17 +87,20 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                       case SellerErrorState():
                         return Center(child: Text(state.err));
                       case SellerSuccessState():
-                        final initials = state.sellerName
+                        String initials = state.sellerName
+                            .trim()
                             .split(" ")
-                            .map((e) => e[0])
-                            .toList()
-                            .sublist(0, 2)
+                            .map((e) => e.isNotEmpty ? e[0] : "")
                             .join()
                             .toUpperCase();
+
+                        initials = initials.length >= 2
+                            ? initials.substring(0, 2)
+                            : initials;
                         final imageUrl = state.image.trim();
 
                         return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             CircleAvatar(
                               radius: 25,
@@ -115,6 +117,10 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                     )
                                   : null,
                             ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(state.sellerName)
                           ],
                         );
                     }
@@ -361,28 +367,31 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
         child: BlocProvider(
           create: (context) =>
               ItemOrderBloc(orderAndPaymentImp: OrderAndPaymentImp()),
-          child: ElevatedButton(
-            onPressed: widget.item.isRented
-                ? () {
-                    showToastMessage("${widget.item.itemName} already rented");
-                  }
-                : () async {
-                    Map<String, dynamic>? returnDate =
-                        await showItemDurationDialog(context);
-                    if (returnDate != null) {
-                      BlocProvider.of<ItemOrderBloc>(context).add(
-                          ItemOrderCreateEvent(
-                              item: widget.item,
-                              user: user,
-                              returnDate: returnDate['returnDate'],
-                              paymentMethod: "dynamic"));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Payment successful")),
-                      );
+          child: Builder(builder: (context) {
+            return ElevatedButton(
+              onPressed: widget.item.isRented
+                  ? () {
+                      showToastMessage(
+                          "${widget.item.itemName} already rented");
                     }
-                  },
-            child: const Text("Rent It"),
-          ),
+                  : () async {
+                      Map<String, dynamic>? returnDate =
+                          await showItemDurationDialog(context);
+                      print(returnDate);
+                      if (returnDate != null) {
+                        context.read<ItemOrderBloc>().add(ItemOrderCreateEvent(
+                            item: widget.item,
+                            user: user,
+                            returnDate: returnDate['returnDate'],
+                            paymentMethod: "dynamic"));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Payment successful")),
+                        );
+                      }
+                    },
+              child: const Text("Rent It"),
+            );
+          }),
         ),
       ),
     );

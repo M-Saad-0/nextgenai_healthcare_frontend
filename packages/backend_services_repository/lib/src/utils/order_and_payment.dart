@@ -5,7 +5,7 @@ abstract class OrderAndPayment {
   Future<Result<String, String>> createOrder(Map<String, dynamic> orderedItem);
   Future<Result<String, String>> getItemsUserOrdered(User user);
   Future<Result<String, String>> getOrderRequest(User user);
-  Future<Result<String, String>> paymentGateway(User user, Item item, String paymentOption);
+  Future<Result<String, String>> paymentGateway(Map<String, dynamic> itemBorrowed);
 
 
   Future<Result<bool, String>> payForTheRequest(); //Borrower
