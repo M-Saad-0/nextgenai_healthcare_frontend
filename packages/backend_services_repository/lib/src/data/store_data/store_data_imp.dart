@@ -43,7 +43,7 @@ class StoreDataImp extends StoreData {
       Map<String, dynamic> itemJson = json.decode(response.body);
       return Result.success(itemJson['_id']);
     } else {
-      return Result.failure(json.decode(response.body)['error']['message']);
+      return Result.failure(json.decode(response.body)['message']);
     }
   }
 

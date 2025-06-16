@@ -2,13 +2,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:next_gen_ai_healthcare/theme/app_theme.dart';
 
 void showToastMessage(String message) {
   try {
     if (!kIsWeb) {
       Fluttertoast.showToast(
         msg: message,
-        backgroundColor: const Color(0xFFFF9800).withOpacity(0.3),
+        backgroundColor: const Color.fromARGB(134, 29, 160, 242),
         gravity: ToastGravity.BOTTOM,
       );
     }

@@ -7,7 +7,7 @@ import 'package:next_gen_ai_healthcare/blocs/theme_bloc/theme_bloc.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/onboarding_page.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/splash_page.dart';
 import 'package:next_gen_ai_healthcare/pages/settings/privacy_policy.dart';
-import 'package:next_gen_ai_healthcare/pages/settings/rent_policy,dart';
+import 'package:next_gen_ai_healthcare/pages/settings/rent_policy.dart';
 import 'package:next_gen_ai_healthcare/widgets/show_toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -79,18 +79,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     backgroundColor:
                         Theme.of(context).colorScheme.onSecondaryFixedVariant,
                     child: FaIcon(
-                      FontAwesomeIcons.brush,
-                      color: Theme.of(context).primaryColor,
-                    )),
-                title: const Text("Stripe Connect"),
-                subtitle: Text("Connect your Stripe account"),
-                trailing: IconButton(
-                  icon: FaIcon(
-                    FontAwesomeIcons.creditCard,
-                    color: widget.user.accountId == null
+                    FontAwesomeIcons.creditCard, color: widget.user.accountId == null
                         ? Colors.grey
-                        : Theme.of(context).primaryColor,
-                  ),
+                        : Theme.of(context).primaryColor,)),
+                title: const Text("Stripe Connect"),
+                subtitle: const Text("Connect your Stripe account"),
+                trailing: TextButton(
                   onPressed: widget.user.accountId == null
                       ? () {
                           showToastMessage(
@@ -100,27 +94,29 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) => AlertDialog(
                               title: const Text("Stripe Connect"),
                               content: const Text(
-                                  "Stripe Connect is not implemented yet."),
+                                  "To recieve payments on stripe, please press and go through stripe account creation process."),
                               actions: [
                                 TextButton(
                                     onPressed: () async {
                                       Map<String, dynamic> sellerAccount =
                                           await OrderAndPaymentImp()
-                                              .createSellerStripeAccount(widget.user.userId);
+                                              .createSellerStripeAccount(
+                                                  widget.user.userId);
                                       final onboardingUrl =
                                           sellerAccount['url'];
                                       final accountId =
                                           sellerAccount['accountId'];
                                       User updatedUser = widget.user
                                           .copyWith(accountId: accountId);
-                                      AuthenticationImp().saveAccountLocally(
-                                          user: updatedUser);
                                       if (await canLaunchUrl(
                                           Uri.parse(onboardingUrl))) {
                                         await launchUrl(
                                             Uri.parse(onboardingUrl),
                                             mode:
                                                 LaunchMode.externalApplication);
+                                      AuthenticationImp().saveAccountLocally(
+                                          user: updatedUser);
+                                          context.read<AuthBloc>().add(Authenticate());
                                       }
                                       Navigator.pop(context);
                                     },
@@ -128,12 +124,23 @@ class _SettingsPageState extends State<SettingsPage> {
                               ],
                             ),
                           );
+                        
                         }
                       : () {
-                        print(widget.user.accountId);
+                          print(widget.user.accountId);
                           showToastMessage(
                               "You are already connected to Stripe.${widget.user.accountId}");
                         },
+                  child: Text(
+                    widget.user.accountId == null
+                        ? "Not Connected"
+                        : "Connected",
+                    style: TextStyle(
+                      color: widget.user.accountId == null
+                          ? Colors.grey
+                          : Theme.of(context).primaryColor,
+                    ),
+                  ),
                 ),
               ),
               ListTile(
@@ -181,7 +188,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 onTap: () {
-                  Navigator.push(context, createRoute(const PrivacyPolicyPage()));
+                  Navigator.push(
+                      context, createRoute(const PrivacyPolicyPage()));
                 },
                 leading: CircleAvatar(
                     backgroundColor:
@@ -194,9 +202,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: const Text("Privacy Policy"),
                 // trailing: const FaIcon(FontAwesomeIcons.brandsFontAwesome),
               ),
-               ListTile(
+              ListTile(
                 onTap: () {
-                  Navigator.push(context, createRoute(const BorrowingPolicyPage()));
+                  Navigator.push(
+                      context, createRoute(const BorrowingPolicyPage()));
                 },
                 leading: CircleAvatar(
                     backgroundColor:

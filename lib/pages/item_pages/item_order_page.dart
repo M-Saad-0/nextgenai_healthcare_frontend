@@ -1,6 +1,7 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:next_gen_ai_healthcare/blocs/auth_bloc/auth_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/borrowing_process_bloc/borrowing_process_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_order_bloc/item_order_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_request_order_bloc/item_request_order_bloc.dart';
@@ -12,27 +13,29 @@ import 'package:next_gen_ai_healthcare/pages/item_pages/location_map_page.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/review_item.dart';
 
 class ItemOrderPage extends StatefulWidget {
-  final User user;
-  const ItemOrderPage({super.key, required this.user});
+  const ItemOrderPage({super.key});
 
   @override
   State<ItemOrderPage> createState() => _ItemOrderPageState();
 }
 
 class _ItemOrderPageState extends State<ItemOrderPage> {
+  late User user;
   @override
   void initState() {
+    user = (context.read<AuthBloc>().state as AuthLoadingSuccess).user;
     _loadItems();
     super.initState();
   }
 
   void _loadItems() async {
     BlocProvider.of<ItemRequestOrderBloc>(context)
-        .add(ItemOrderRequired(user: widget.user));
+        .add(ItemOrderRequired(user: user));
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           title: const Text("Your order"),
@@ -76,9 +79,10 @@ class _ItemOrderPageState extends State<ItemOrderPage> {
                                       context: context,
                                       builder: (context) {
                                         return LocationMapPage(
+                                          role: "borrower",
                                             itemDocs:
                                                 itemDocs,
-                                            user: widget.user,
+                                            user: user,
                                             item: state.items[index]);
                                       });
                                 },

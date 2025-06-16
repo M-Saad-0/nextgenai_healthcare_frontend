@@ -43,7 +43,7 @@ class _YourItemsPageState extends State<YourItemsPage> {
                           YourItemsDeleteEvent(itemId: selectedItemId),
                         );
                     setState(() {
-                      selectedItemId.clear();
+                      selectedItemId = [];
                     });
                   },
                 ),

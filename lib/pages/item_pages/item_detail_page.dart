@@ -67,6 +67,8 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                         text: widget.item.price.toString(),
                         style: const TextStyle(
                             fontSize: 19, fontWeight: FontWeight.w600))
+                            ,
+                            const TextSpan(text: " per hour", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w400))
                   ])),
               const SizedBox(
                 height: 10,
@@ -75,7 +77,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(height: 8),
               BlocProvider(
-                create: (context) => SellerBloc(reviewOps: ReviewOps())
+                create: (context) => SellerBloc()
                   ..add(SellerGetNameImageEvent(userId: widget.item.userId)),
                 child: BlocBuilder<SellerBloc, SellerState>(
                   builder: (context, state) {
@@ -140,7 +142,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    widget.item.rating.toString(),
+                    widget.item.rating.toStringAsFixed(1),
                     style: const TextStyle(
                         fontWeight: FontWeight.w200, fontSize: 13),
                   ),
@@ -169,7 +171,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                         builder: (context, state) {
                       if (state is WishlistCurrentState) {
                         itemAddedToWishList = state.currentState;
-                        print("object");
+                        // print("object");
                       }
                       return StatefulBuilder(builder: (context, setState) {
                         return IconButton(
@@ -265,14 +267,16 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state.reviewModel.length,
                           itemBuilder: (context, index) {
-                            final nameInitials = state
-                                .reviewModel[index].renterName
-                                .split(" ")
-                                .map((e) => e[0])
-                                .toList()
-                                .sublist(0, 2)
-                                .join()
-                                .toUpperCase();
+                             String initials = state.reviewModel[index].renterName
+                            .trim()
+                            .split(" ")
+                            .map((e) => e.isNotEmpty ? e[0] : "")
+                            .join()
+                            .toUpperCase();
+
+                        initials = initials.length >= 2
+                            ? initials.substring(0, 2)
+                            : initials;
                             final image = state.reviewModel[index].picture;
                             return Card(
                               child: Padding(
@@ -288,7 +292,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                               ? null
                                               : NetworkImage(image),
                                           child: image.isEmpty
-                                              ? Text(nameInitials)
+                                              ? Text(initials)
                                               : null,
                                         ),
                                         const SizedBox(
@@ -368,28 +372,36 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
           create: (context) =>
               ItemOrderBloc(orderAndPaymentImp: OrderAndPaymentImp()),
           child: Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: widget.item.isRented
-                  ? () {
-                      showToastMessage(
-                          "${widget.item.itemName} already rented");
-                    }
-                  : () async {
-                      Map<String, dynamic>? returnDate =
-                          await showItemDurationDialog(context);
-                      print(returnDate);
-                      if (returnDate != null) {
-                        context.read<ItemOrderBloc>().add(ItemOrderCreateEvent(
-                            item: widget.item,
-                            user: user,
-                            returnDate: returnDate['returnDate'],
-                            paymentMethod: "dynamic"));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Payment successful")),
-                        );
+            return BlocListener<ItemOrderBloc, ItemOrderState>(
+              listener: (context, state) {
+                if(state is ItemOrderError){
+                  debugPrint("********************************************");
+                  showToastMessage(state.error);
+                }
+              },
+              child: ElevatedButton(
+                onPressed: widget.item.isRented
+                    ? () {
+                        showToastMessage(
+                            "${widget.item.itemName} already rented");
                       }
-                    },
-              child: const Text("Rent It"),
+                    : () async {
+                        Map<String, dynamic>? returnDate =
+                            await showItemDurationDialog(context);
+                        print(returnDate);
+                        if (returnDate != null) {
+                          context.read<ItemOrderBloc>().add(
+                              ItemOrderCreateEvent(
+                                  item: widget.item,
+                                  user: user,
+                                  returnDate: returnDate['returnDate'],
+                                  paymentMethod: "dynamic"));
+                          showToastMessage("Your request for rent is submitted");
+                          
+                        }
+                      },
+                child: const Text("Rent It"),
+              ),
             );
           }),
         ),

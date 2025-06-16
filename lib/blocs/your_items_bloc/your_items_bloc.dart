@@ -23,13 +23,15 @@ class YourItemsBloc extends Bloc<YourItemsEvent, YourItemsState> {
     });
 
     on<YourItemsDeleteEvent>((event, emit) async {
-      emit(YourItemsLoadingState());
+      // emit(YourItemsLoadingState());
+        // print('Deleting items: ${event.itemId}');
       try {
         for (String e in event.itemId) {
           await itemImp.deleteItem(itemId: e);
-          emit(YourItemsDeleteState(itemId: e));
         }
+          emit(YourItemsDeleteState(itemId: event.itemId.join(", ")));
       } catch (e) {
+        print("LOL ${e.toString()}");
         emit(YourItemsErrorState(errorMessage: e.toString()));
       }
     });

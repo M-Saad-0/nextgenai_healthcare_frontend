@@ -10,7 +10,7 @@ class FcmDatabaseRequest {
     final response = await http.post(
       Uri.parse('$api/users/save-token'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'token': token, 'userId': userId}),
+      body: jsonEncode({'fcmToken': token, 'userId': userId}),
     );
     print(response.body);
   }

@@ -276,12 +276,12 @@ final dietsCsv = await rootBundle.loadString('assets/prognosis_model/diets.csv')
         break;
       }
     }
-    for (var i in symptomSeverity) {
-      if (i.contains(disease)) {
-        result['symptomSeverity'] = i;
-        break;
-      }
-    }
+    // for (var i in symptomSeverity) {
+    //   if (i.contains(disease)) {
+    //     result['symptomSeverity'] = i;
+    //     break;
+    //   }
+    // }
 
     return result;
   }

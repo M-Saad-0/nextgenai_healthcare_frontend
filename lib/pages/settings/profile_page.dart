@@ -37,12 +37,13 @@ class ProfilePage extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                child: Text(
+                backgroundImage: user.picture==null?null:NetworkImage(user.picture!),
+                backgroundColor: user.picture==null?Theme.of(context).colorScheme.primary:null,
+                child: user.picture==null?Text(
                   initials,
                   style: const TextStyle(
-                      fontSize: 35, fontWeight: FontWeight.bold),
-                ),
+                      fontSize: 35, fontWeight: FontWeight.bold, color: Colors.white),
+                ):null,
               ),
               const SizedBox(
                 width: 10,
@@ -85,8 +86,8 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ],
-                child: ItemOrderPage(
-                  user: user,
+                child: const ItemOrderPage(
+                  
                 ),
               );
             }));
@@ -118,8 +119,8 @@ class ProfilePage extends StatelessWidget {
                     builder: (context) => BlocProvider(
                           create: (context) => ItemRequestOrderBloc(
                               orderAndPaymentImp: OrderAndPaymentImp()),
-                          child: ItemRequestPage(
-                            user: user,
+                          child: const ItemRequestPage(
+                            
                           ),
                         )));
           },

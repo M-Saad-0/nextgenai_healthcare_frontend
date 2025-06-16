@@ -47,7 +47,7 @@ class _SplashLoadingScreenState extends State<SplashLoadingScreen>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..forward();
+    )..forward()..addListener((){setState(() {});});
 
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,

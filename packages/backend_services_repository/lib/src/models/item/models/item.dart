@@ -59,6 +59,7 @@ class Item {
         price: itemEntity.price,
         isRented: itemEntity.isRented,
         reviews: itemEntity.reviews);
+        
   }
 
   Item copyWith(

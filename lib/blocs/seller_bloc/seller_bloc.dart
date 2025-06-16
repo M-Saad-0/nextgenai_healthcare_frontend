@@ -7,12 +7,11 @@ part 'seller_event.dart';
 part 'seller_state.dart';
 
 class SellerBloc extends Bloc<SellerEvent, SellerState> {
-  ReviewOps reviewOps;
-  SellerBloc({required this.reviewOps}) : super(SellerInitial()) {
+  SellerBloc() : super(SellerInitial()) {
     on<SellerGetNameImageEvent>((event, emit)async {
       emit(SellerLoadingState());
       try{
-        final result = await reviewOps.getUserById(userId: event.userId);
+        final result = await ReviewOps.getUserById(userId: event.userId);
         if(result.isFailure){
           emit(SellerErrorState(err: result.error!));
         }else{

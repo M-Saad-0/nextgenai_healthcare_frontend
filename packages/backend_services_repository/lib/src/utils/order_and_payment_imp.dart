@@ -18,7 +18,8 @@ class OrderAndPaymentImp extends OrderAndPayment {
     if (response.statusCode == 201) {
       return Result.success("Order created successfully");
     } else {
-      return Result.failure("Failed to create order");
+      final message = jsonDecode(response.body)['message']??"Sorry, failed to rent this item";
+      return Result.failure(message);
     }
   }
 

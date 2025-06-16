@@ -39,7 +39,7 @@ class _ItemPageState extends State<ItemPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: searchItem ? const SizedBox.shrink() : const Text("ItemPage"),
+        title: searchItem ? const SizedBox.shrink() : const Text("Medical Instruments"),
         actions: [
           AnimatedContainer(
               width: searchItem

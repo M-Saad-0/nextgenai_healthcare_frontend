@@ -1,0 +1,2 @@
+D:/fyp/fyp_project_1/FrontEnd/next_gen_ai_healthcare/android/app/.cxx/RelWithDebInfo/34523s3o/x86/CMakeFiles/edit_cache.dir
+D:/fyp/fyp_project_1/FrontEnd/next_gen_ai_healthcare/android/app/.cxx/RelWithDebInfo/34523s3o/x86/CMakeFiles/rebuild_cache.dir

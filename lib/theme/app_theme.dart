@@ -214,6 +214,7 @@ import 'package:flutter/material.dart';
 
 class AppThemes {
   static const Color primaryColor = Color(0xFF1DA1F2); // Old Twitter blue
+  // static const Color primaryColor = Color(0xFF1DA1F2); // Old Twitter blue
 
   static final ThemeData lightTheme = ThemeData(
     primaryTextTheme: TextTheme(

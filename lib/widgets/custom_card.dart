@@ -47,27 +47,34 @@ class CustomCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style:  TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white.withValues(alpha: 0.8))),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Text(description,
-                      style: const TextStyle(fontWeight: FontWeight.w300, color: Colors.white))
-                ],
+              Expanded(
+                flex: 2,
+                child: Column(
+                  
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style:  TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white.withValues(alpha: 0.8))),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Text(description,
+                        style: const TextStyle(fontWeight: FontWeight.w300, color: Colors.white))
+                  ],
+                ),
               ),
-              Column(
-                children: [
-                  Icon(
-                    icon,
-                    size: 38,
-                    color: Colors.white,
-                  )
-                ],
+              Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    Icon(
+                      icon,
+                      size: 45,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
               )
             ],
           ),

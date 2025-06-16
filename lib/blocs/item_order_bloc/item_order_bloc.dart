@@ -19,9 +19,11 @@ class ItemOrderBloc extends Bloc<ItemOrderEvent, ItemOrderState> {
           'paymentMethod': event.paymentMethod,
           'borrowDate': DateTime.now().toIso8601String(),
           'requestStatus': 'Pending',
-          'returnDate': event.returnDate
+          'returnDate': event.returnDate,
+          'accountId':event.user.accountId
         });
         if (result.isFailure) {
+          print(result.error!);
           emit(ItemOrderError(error: result.error));
         } else if (result.isSuccess) {
           emit(ItemOrderSuccess(success: result.value));

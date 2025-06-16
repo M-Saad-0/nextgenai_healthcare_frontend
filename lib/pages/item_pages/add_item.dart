@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:next_gen_ai_healthcare/blocs/auth_bloc/auth_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/create_item_bloc/create_item_bloc.dart';
 import 'package:next_gen_ai_healthcare/widgets/show_toast.dart';
@@ -35,7 +37,7 @@ class _AddItemState extends State<AddItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Item'),
+        title: const Text('Add Medical Equipment'),
       ),
       body: Stack(
         children: [
@@ -51,7 +53,7 @@ class _AddItemState extends State<AddItem> {
                       TextFormField(
                         controller: _itemNameController,
                         decoration:
-                            const InputDecoration(labelText: 'Item Name'),
+                            const InputDecoration(labelText: 'Medical Instrument Name', prefixIcon: Icon(Icons.medical_information)),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Item Name';
@@ -64,8 +66,9 @@ class _AddItemState extends State<AddItem> {
                       ),
                       TextFormField(
                         controller: _descriptionController,
+                        
                         decoration:
-                            const InputDecoration(labelText: 'Description'),
+                            const InputDecoration(labelText: 'Description', prefixIcon: Icon(Icons.list)),
                         maxLines: 3,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -82,11 +85,18 @@ class _AddItemState extends State<AddItem> {
                       ),
                       TextFormField(
                         controller: _priceController,
+                        keyboardType: TextInputType.number,
+                        maxLength: 2,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         decoration:
-                            const InputDecoration(labelText: 'Item Price'),
+                            const InputDecoration(labelText: 'Item Price Per Hour', prefixIcon:Icon(Icons.monetization_on) ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter Item Price';
+                          }
+                          if(double.parse(value)>40){
+                            return 'Please set lower per hour price';
+
                           }
                           return null;
                         },

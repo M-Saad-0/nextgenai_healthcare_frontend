@@ -1,20 +1,36 @@
+import 'dart:convert';
+
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:next_gen_ai_healthcare/blocs/auth_bloc/auth_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/hero_bloc/hero_bloc_bloc.dart';
+import 'package:next_gen_ai_healthcare/blocs/item_request_order_bloc/item_request_order_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/theme_bloc/theme_bloc.dart';
 import 'package:next_gen_ai_healthcare/constants/api_key.dart';
+import 'package:next_gen_ai_healthcare/fcm_services.dart';
 import 'package:next_gen_ai_healthcare/firebase_options.dart';
+import 'package:next_gen_ai_healthcare/pages/auth/onboarding_page.dart';
 import 'package:next_gen_ai_healthcare/pages/auth/splash_page.dart';
+import 'package:next_gen_ai_healthcare/pages/item_pages/item_order_page.dart';
+import 'package:next_gen_ai_healthcare/pages/item_pages/item_request_page.dart';
 import 'package:next_gen_ai_healthcare/simple_bloc_observer.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  
+  // Handle background message
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = publishing_key; 
+  Stripe.publishableKey = publishing_key;
   await Stripe.instance.applySettings();
   await Hive.initFlutter();
   Hive.registerAdapter(ChatsAdapter());
@@ -25,17 +41,29 @@ void main() async {
   await Hive.openBox('settings');
   Bloc.observer = SimpleBlocObserver();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // Init local notifications
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+await FirebaseMessaging.instance.requestPermission(
+  alert: true,
+  badge: true,
+  sound: true,
+);
+
+// print("object");
   runApp(MyApp(
     authentication: AuthenticationImp(),
   ));
 }
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
-}
-//TODO: We have to own a web domain for app links to work properly
 
 
 class MyApp extends StatelessWidget {
@@ -49,10 +77,8 @@ class MyApp extends StatelessWidget {
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) =>
-                AuthBloc(authentication: authentication)..add(Authenticate())
-                
-          ),
+              create: (context) => AuthBloc(authentication: authentication)
+                ..add(Authenticate())),
           BlocProvider<ThemeBloc>(
             create: (context) => ThemeBloc(LocalThemeData()),
           ),

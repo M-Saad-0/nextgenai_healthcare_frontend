@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:next_gen_ai_healthcare/constants/dateformat.dart';
 
 Future<Map<String, dynamic>?> showItemDurationDialog(BuildContext context) {
   return showDialog<Map<String, dynamic>>(
@@ -18,14 +19,15 @@ Future<Map<String, dynamic>?> showItemDurationDialog(BuildContext context) {
             title: const Text("Set Duration"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("From: ${now.toLocal()}"),
+                Text("From: ${dateFomate.format(now)}"),
                 const SizedBox(height: 8),
                 const Icon(Icons.arrow_downward),
                 const SizedBox(height: 8),
                 if (setInput)
-                  Text("To: ${returnDate.toLocal()}")
+                  Text("To: ${dateFomate.format(returnDate)}")
                 else
                   Column(
                     children: [

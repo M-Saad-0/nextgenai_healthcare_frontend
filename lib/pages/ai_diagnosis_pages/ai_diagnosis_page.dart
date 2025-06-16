@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/chat_bloc/chat_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/symptoms_bloc/symptoms_bloc.dart';
 import 'package:next_gen_ai_healthcare/pages/chat_pages/ai_chatbot.dart';
+import 'package:next_gen_ai_healthcare/widgets/ai_prognosis.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 class AiDiagnosisPage extends StatefulWidget {
@@ -22,6 +23,8 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
   final Set<String> _visibleCards = {};
   List<String> symptomsHistory = [];
   late DiagnosisChatSave chatSave;
+  List<bool> selectableSymptoms =
+      List.generate(AiPrognosis.symptomsDict.length, (index) => false);
   @override
   void initState() {
     super.initState();
@@ -74,10 +77,10 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: const TextStyle(
+                      style:  TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.indigo)),
+                          color: Theme.of(context).primaryColor)),
                   const SizedBox(height: 8),
                   Text(content, style: const TextStyle(fontSize: 16)),
                 ],
@@ -141,7 +144,6 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         title: const Text('AI Symptoms Analysis'),
         actions: [
@@ -157,28 +159,33 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
         child: Drawer(
           child: Column(
             children: [
-                const Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Text(
                   "Symptoms History",
                   style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
                   ),
                 ),
-                ),
+              ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: symptomsHistory.length,
+                    itemCount: symptomsHistory.length,
                     itemBuilder: (context, index) => ListTile(
-                          title: Text(symptomsHistory[index]),
+                          title: Text(
+                            symptomsHistory[index],
+                            maxLines: 1,
+                            style: const TextStyle(overflow: TextOverflow.ellipsis),
+                          ),
                           onTap: () {
-        
-                            context.read<SymptomsBloc>().add(SymptomsPredictEvent(
-                                symptoms: symptomsHistory[index]
-                                    .split(",")
-                                    .map((e) => e.trim())
-                                    .toList()));
+                            context.read<SymptomsBloc>().add(
+                                SymptomsPredictEvent(
+                                    symptoms: symptomsHistory[index]
+                                        .split(",")
+                                        .map((e) => e.trim())
+                                        .toList()));
+                                        Navigator.pop(context);
                           },
                         )),
               )
@@ -188,9 +195,12 @@ class _AiSymptomsPageState extends State<AiDiagnosisPage>
       ),
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(image: AssetImage(Theme.of(context).brightness==Brightness.dark?"assets/images/chat_bg_dark.png":"assets/images/chat_bg_light.png"),
-repeat: ImageRepeat.repeat,)
-        ),
+            image: DecorationImage(
+          image: AssetImage(Theme.of(context).brightness == Brightness.dark
+              ? "assets/images/chat_bg_dark.png"
+              : "assets/images/chat_bg_light.png"),
+          repeat: ImageRepeat.repeat,
+        )),
         child: BlocBuilder<SymptomsBloc, SymptomsState>(
           builder: (context, state) {
             switch (state) {
@@ -233,6 +243,185 @@ repeat: ImageRepeat.repeat,)
                               },
                               decoration: InputDecoration(
                                 hintText: "e.g. headache, nausea",
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    List<String> allSymptoms =
+                                        AiPrognosis.symptomsDict.keys.toList();
+                                    List<String> searchedSymptoms =
+                                        allSymptoms;
+                                    TextEditingController searchcontroller =
+                                        TextEditingController();
+
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => StatefulBuilder(
+                                        builder: (_, setState) {
+                                          return AlertDialog(
+                                            title: const Text(
+                                                "Please select symptoms", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),),
+                                            content: ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.7,
+                                                maxWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.8,
+                                              ),
+                                              child: SingleChildScrollView(
+                                                physics:
+                                                    const AlwaysScrollableScrollPhysics(),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    TextField(
+                                                      controller:
+                                                          searchcontroller,
+                                                      decoration:
+                                                          const InputDecoration(
+                                                              prefixIcon: Icon(
+                                                                  Icons.search),
+                                                              hintText:
+                                                                  "Search for symptoms"),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          searchedSymptoms = allSymptoms
+                                                              .where((e) => e
+                                                                  .toLowerCase()
+                                                                  .contains(value
+                                                                      .toLowerCase()))
+                                                              .toList();
+                                                        });
+                                                      },
+                                                    ),
+                                                    const SizedBox(height: 10),
+                                                    Column(
+                                                      children: [
+                                                        for (int i = 0;
+                                                            i <
+                                                                searchedSymptoms
+                                                                    .length;
+                                                            i++)
+                                                          Builder(
+                                                            builder: (context) {
+                                                              int index = AiPrognosis
+                                                                          .symptomsDict[
+                                                                      searchedSymptoms[
+                                                                          i]] ??
+                                                                  0;
+                                                              final name =
+                                                                  searchedSymptoms[
+                                                                          i]
+                                                                      .split(
+                                                                          "_")
+                                                                      .map((e) {
+                                                                e = e[0].toUpperCase() +
+                                                                    e.substring(
+                                                                        1);
+                                                                return e;
+                                                              }).join(" ");
+                                                              return ListTile(
+                                                                leading: selectableSymptoms[
+                                                                        index]
+                                                                    ? const Icon(
+                                                                        Icons
+                                                                            .check_box)
+                                                                    : const Icon(
+                                                                        Icons
+                                                                            .check_box_outline_blank),
+                                                                title:
+                                                                    Text(name),
+                                                                selected:
+                                                                    selectableSymptoms[
+                                                                        index],
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    selectableSymptoms[
+                                                                            index] =
+                                                                        !selectableSymptoms[
+                                                                            index];
+                                                                  });
+                                                                },
+                                                              );
+                                                            },
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  List<String>
+                                                      selectedSymptoms = [];
+                                                  for (int i = 0;
+                                                      i <
+                                                          selectableSymptoms
+                                                              .length;
+                                                      i++) {
+                                                    if (selectableSymptoms[i]) {
+                                                      selectedSymptoms
+                                                          .add(allSymptoms[i]);
+                                                    }
+                                                  }
+                                                  if (selectedSymptoms
+                                                      .isEmpty) {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          content: Text(
+                                                              "Please select at least one symptom")),
+                                                    );
+                                                    return;
+                                                  }
+                                                  _textController.text =
+                                                      selectedSymptoms
+                                                          .join(", ");
+                                                  selectableSymptoms =
+                                                      List.filled(
+                                                          selectableSymptoms
+                                                              .length,
+                                                          false);
+
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Select"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    selectableSymptoms =
+                                                        List.generate(
+                                                      AiPrognosis
+                                                          .symptomsDict.length,
+                                                      (index) => false,
+                                                    );
+                                                  });
+                                                  selectableSymptoms =
+                                                      List.filled(
+                                                          selectableSymptoms
+                                                              .length,
+                                                          false);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text("Cancel"),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.list),
+                                  tooltip: "Select Symptoms",
+                                ),
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12)),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -311,27 +500,32 @@ repeat: ImageRepeat.repeat,)
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               children: [
-                                diseaseProbability(state.result.keys.toList()[0],
+                                diseaseProbability(
+                                    state.result.keys.toList()[0],
                                     state.result.values.toList()[0]),
                                 const SizedBox(
                                   height: 8,
                                 ),
-                                diseaseProbability(state.result.keys.toList()[1],
+                                diseaseProbability(
+                                    state.result.keys.toList()[1],
                                     state.result.values.toList()[1]),
                                 const SizedBox(
                                   height: 8,
                                 ),
-                                diseaseProbability(state.result.keys.toList()[2],
+                                diseaseProbability(
+                                    state.result.keys.toList()[2],
                                     state.result.values.toList()[2]),
                                 const SizedBox(
                                   height: 8,
                                 ),
-                                diseaseProbability(state.result.keys.toList()[3],
+                                diseaseProbability(
+                                    state.result.keys.toList()[3],
                                     state.result.values.toList()[3]),
                                 const SizedBox(
                                   height: 8,
                                 ),
-                                diseaseProbability(state.result.keys.toList()[4],
+                                diseaseProbability(
+                                    state.result.keys.toList()[4],
                                     state.result.values.toList()[4]),
                               ],
                             ),
@@ -360,14 +554,14 @@ repeat: ImageRepeat.repeat,)
                             state.medications ?? "No Medication Information"),
                         reusableInfoCard('Precautions',
                             state.precautionDf ?? "No Precautions Information"),
-                        reusableInfoCard(
-                            'Severity',
-                            state.symptomSeverity?.toString() ??
-                                "No Severity Information"),
+                        // reusableInfoCard(
+                        //     'Severity',
+                        //     state.symptomSeverity?.toString() ??
+                        //         "No Severity Information"),
                         const SizedBox(
                           height: 8,
                         ),
-        
+
                         SizedBox(
                           width: MediaQuery.sizeOf(context).width - 50,
                           child: ElevatedButton.icon(

@@ -167,13 +167,18 @@ class RetrieveDataImp extends RetrieveData {
         Uri.parse("$api/items/$itemId"),
         headers: {'Content-Type': 'application/json'},
       );
+      debugPrint("Error occurred: 204 ${response.body}");
       if (response.statusCode == 204) {
+      debugPrint("Error occurred: 204 ${response.body}");
         return Result.success(jsonDecode(response.body)['message']=="item deleted");
       } else if (response.statusCode == 404) {
+      debugPrint("Error occurred: 404 ${response.body}");
         return Result.failure("The item does not exist");
       } else if (response.statusCode == 403) {
+      debugPrint("Error occurred: 403 ${response.body}");
         return Result.failure("You do not have access for this");
       } else {
+      debugPrint("Error occurred: else ${response.body}");
         return Result.failure("Failed to delete the item. Unexpected error.");
       }
     } catch (e) {

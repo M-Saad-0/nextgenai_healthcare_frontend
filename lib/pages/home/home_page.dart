@@ -1,4 +1,5 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     pageController = PageController();
-    final fcmMessaging = NotificationService(userId: widget.user.userId);
+    final fcmMessaging = NotificationService(user: widget.user);
     fcmMessaging.init();
     // context.read<HeroBlocBloc>().add(MoreHeroItemsRequired(
     //     setNo: 5,

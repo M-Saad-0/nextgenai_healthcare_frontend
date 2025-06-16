@@ -6,12 +6,12 @@ class BorrowingPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Borrowing & Safety Policy')),
+      appBar: AppBar(title: const Text('Rent & Safety Policy')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: RichText(
           text: TextSpan(
-            style: const TextStyle(color: Colors.black87, fontSize: 16),
+            style:  TextStyle( fontSize: 16, color:Theme.of(context).colorScheme.onSurface),
             children: [
               const TextSpan(
                 text: 'To protect both borrowers and lenders, we enforce strict rules regarding non-returned, damaged, or stolen items.\n\n',

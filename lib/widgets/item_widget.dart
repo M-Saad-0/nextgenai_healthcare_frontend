@@ -76,10 +76,10 @@ class ItemWidget extends StatelessWidget {
                     children: [
                       
                       Text(
-                        '$sold sold',
+                        '$sold rentals',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurfaceVariant,
+                          color: theme.colorScheme.secondary,
                         ),
                       ),
                       const Spacer(),

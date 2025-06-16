@@ -232,7 +232,6 @@
 //   }
 // }
 
-
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -344,29 +343,32 @@ class _ItemPaymentPageState extends State<ItemPaymentPage> {
                     });
                   },
                 ),
-                widget.itemDoc['sellerAccountId']!=null?RadioListTile(
-                  title: const Text("Stripe"),
-                  secondary: const Icon(Icons.credit_card),
-                  value: "Stripe",
-                  groupValue: selectedPaymentOption,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedPaymentOption = value!;
-                    });
-                  },
-                ):const SizedBox.shrink(),
+                widget.itemDoc['sellerAccountId'] != null
+                    ? RadioListTile(
+                        title: const Text("Stripe"),
+                        secondary: const Icon(Icons.credit_card),
+                        value: "Stripe",
+                        groupValue: selectedPaymentOption,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedPaymentOption = value!;
+                          });
+                        },
+                      )
+                    : const SizedBox.shrink(),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () async {
                     final newItemDoc = widget.itemDoc;
                     newItemDoc['paymentMethod'] = selectedPaymentOption;
-                      // newItemDoc['sellerAccountId'] = user.accountId;
+                    // newItemDoc['sellerAccountId'] = user.accountId;
                     bool isSuccess = false;
 
                     if (selectedPaymentOption == "Stripe") {
                       isSuccess = await initiateStripePayment();
                       if (isSuccess) {
-                        newItemDoc['requestStatus'] = RequestStatuses.Completed.name;
+                        newItemDoc['requestStatus'] =
+                            RequestStatuses.Completed.name;
                         BlocProvider.of<ItemOrderBloc>(context).add(
                           ItemOrderPaymentEvent(itemDoc: newItemDoc),
                         );
@@ -374,6 +376,9 @@ class _ItemPaymentPageState extends State<ItemPaymentPage> {
                         showToastMessage("Payment Failed");
                       }
                     } else {
+                      newItemDoc['requestStatus'] =
+                          RequestStatuses.Completed.name;
+
                       BlocProvider.of<ItemOrderBloc>(context).add(
                         ItemOrderPaymentEvent(itemDoc: newItemDoc),
                       );
@@ -393,19 +398,19 @@ class _ItemPaymentPageState extends State<ItemPaymentPage> {
   Future<bool> initiateStripePayment() async {
     try {
       final amount = widget.item.price *
-          100 *
+          1 *
           DateTime.parse(widget.itemDoc['returnDate'])
               .difference(DateTime.parse(widget.itemDoc['borrowDate']))
               .inHours;
-final paymentJson = {
-          'amount': amount,
-          'currency': 'pkr',
-          'sellerAccountId': widget.itemDoc['sellerAccountId'],
-          'applicationFeeAmount': 100 // optional
-        };
+      final paymentJson = {
+        'amount': amount,
+        'currency': 'pkr',
+        'sellerAccountId': widget.itemDoc['sellerAccountId'],
+        'applicationFeeAmount': 100 // optional
+      };
 
-      
-final jsonResponse =  await OrderAndPaymentImp().sendRequestToStripe(paymentJson: paymentJson);
+      final jsonResponse = await OrderAndPaymentImp()
+          .sendRequestToStripe(paymentJson: paymentJson);
       if (!jsonResponse.containsKey('clientSecret')) {
         return false;
       }

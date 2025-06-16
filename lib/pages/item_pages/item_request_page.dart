@@ -1,6 +1,7 @@
 import 'package:backend_services_repository/backend_service_repositoy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:next_gen_ai_healthcare/blocs/auth_bloc/auth_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/borrowing_process_bloc/borrowing_process_bloc.dart';
 import 'package:next_gen_ai_healthcare/blocs/item_request_order_bloc/item_request_order_bloc.dart';
 import 'package:next_gen_ai_healthcare/pages/error_pages/error_page.dart';
@@ -9,23 +10,24 @@ import 'package:next_gen_ai_healthcare/pages/item_pages/item_order_page.dart';
 import 'package:next_gen_ai_healthcare/pages/item_pages/location_map_page.dart';
 
 class ItemRequestPage extends StatefulWidget {
-  final User user;
-  const ItemRequestPage({super.key, required this.user});
+  const ItemRequestPage({super.key});
 
   @override
   State<ItemRequestPage> createState() => _ItemRequestPageState();
 }
 
 class _ItemRequestPageState extends State<ItemRequestPage> {
+  late User user;
   @override
   void initState() {
+    user = (context.read<AuthBloc>().state as AuthLoadingSuccess).user;
     _loadItems();
     super.initState();
   }
 
   void _loadItems() async {
     BlocProvider.of<ItemRequestOrderBloc>(context)
-        .add(ItemRequestRequired(user: widget.user));
+        .add(ItemRequestRequired(user: user));
   }
 
   @override
@@ -70,16 +72,30 @@ class _ItemRequestPageState extends State<ItemRequestPage> {
                             }
                             return Card(
                               child: ListTile(
-                                  onTap: () {
-                                    showDialog(
+                                  onTap: () async{
+                                    final userResult = await ReviewOps.getUserById(userId: itemDocs['borrowerId']);
+                                    if(userResult.isFailure){
+                                      showDialog(
                                         context: context,
                                         builder: (context) {
                                           return LocationMapPage(
                                               itemDocs:itemDocs,
                                               user:
-                                                  widget.user,
+                                                  user,
                                               item: item);
                                         });
+                                    }else{
+                                      final borrowerUser = User(userId: userResult.value!['userId'], userName: userResult.value!['sellerName'], email: userResult.value!['email'], location: userResult.value!['location']);
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return LocationMapPage(
+                                              itemDocs:itemDocs,
+                                              user:
+                                                  borrowerUser,
+                                              item: item);
+                                        });
+                                    }
                                   },
                                   title: Text(item.itemName),
                                   subtitle: Text("${item.price} RS\t\t${itemDocs['paymentMethod']=="dynamic"?"":itemDocs['paymentMethod']}"),

@@ -40,7 +40,7 @@ class ReviewOps {
     }
   }
 
-  Future<Result<Map<String, dynamic>, String>> getUserById({required String userId}) async {
+  static Future<Result<Map<String, dynamic>, String>> getUserById({required String userId}) async {
     Uri uri = Uri.parse("$api/users/$userId");
     debugPrint("Fetching user from $uri");
 
@@ -59,6 +59,7 @@ class ReviewOps {
             "Could not find user with ID $userId";
         return Result.failure(error);
       } else {
+        print("Line 62: ${response.body}");
         return Result.failure("An unexpected error occurred");
       }
     } catch (e) {
